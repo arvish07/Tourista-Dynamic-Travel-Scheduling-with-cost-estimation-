@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Travel Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7ff;
+            padding: 20px;
+            color: #333;
+        }
+        .planner-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #4361ee;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0ff;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            background: #4361ee;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #3a0ca3;
+        }
+        .suggestions {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        .suggestion-tag {
+            display: inline-block;
+            background: #e6e9ff;
+            color: #4361ee;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            display: none;
+        }
+        th, td {
+            border: 1px solid #e0e0ff;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #4361ee;
+            color: white;
+        }
+        .activity-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .time-header {
+            font-weight: 600;
+            color: #4361ee;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="planner-container">
+        <h2>✈ Smart Travel Planner</h2>
+        <p style="text-align: center; color: #666; margin-bottom: 20px;">Get automatic suggestions for your perfect trip</p>
+        
+        <div class="input-group">
+            <label for="destination">Where are you going?</label>
+            <input type="text" id="destination" placeholder="E.g. Paris, Tokyo, New York">
+        </div>
+        
+        <div class="input-group">
+            <label for="days">How many days?</label>
+            <input type="number" id="days" min="1" max="30" placeholder="Number of days">
+        </div>
+        
+        <button id="generateBtn">Generate Itinerary</button>
+        
+        <div id="suggestions" class="suggestions">
+            <h3>Popular activities:</h3>
+            <div id="suggestionsList"></div>
+            <button id="autoFillBtn" style="background: #4cc9f0; margin-top: 15px;">
+                <i class="fas fa-bolt"></i> Auto-fill with smart itinerary
+            </button>
+        </div>
+        
+        <table id="itineraryTable">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Morning</th>
+                    <th>Afternoon</th>
+                    <th>Evening</th>
+                </tr>
+            </thead>
+            <tbody id="itineraryBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Enhanced attraction database with time-specific suggestions
+        const attractions = {
+            "paris": {
+                morning: [
+                    "Eiffel Tower visit",
+                    "Louvre Museum tour",
+                    "Montmartre walking tour",
+                    "Notre-Dame Cathedral",
+                    "Breakfast at Café de Flore"
+                ],
+                afternoon: [
+                    "Seine River Cruise",
+                    "Champs-Élysées shopping",
+                    "Musée d'Orsay visit",
+                    "Luxembourg Gardens",
+                    "Latin Quarter exploration"
+                ],
+                evening: [
+                    "Moulin Rouge show",
+                    "Dinner cruise on Seine",
+                    "Eiffel Tower lights",
+                    "Montparnasse Tower view",
+                    "Saint-Germain nightlife"
+                ]
+            },
+            "tokyo": {
+                morning: [
+                    "Tsukiji Fish Market",
+                    "Meiji Shrine visit",
+                    "Asakusa walking tour",
+                    "Senso-ji Temple",
+                    "Traditional breakfast"
+                ],
+                afternoon: [
+                    "Shibuya Crossing",
+                    "Akihabara electronics",
+                    "Harajuku fashion",
+                    "Ueno Park & Zoo",
+                    "Imperial Palace East Garden"
+                ],
+                evening: [
+                    "Tokyo Tower visit",
+                    "Shinjuku nightlife",
+                    "Robot Restaurant",
+                    "Roppongi Hills view",
+                    "Izakaya dinner"
+                ]
+            },
+            "new york": {
+                morning: [
+                    "Statue of Liberty ferry",
+                    "Central Park walk",
+                    "Metropolitan Museum",
+                    "Top of the Rock",
+                    "Breakfast at diner"
+                ],
+                afternoon: [
+                    "Times Square",
+                    "Broadway show matinee",
+                    "Empire State Building",
+                    "High Line walk",
+                    "Shopping in SoHo"
+                ],
+                evening: [
+                    "Broadway show",
+                    "Dinner in Chinatown",
+                    "Brooklyn Bridge lights",
+                    "Rooftop bar",
+                    "Nightclub in Meatpacking"
+                ]
+            },
+            "chandigarh": {
+        morning: [
+            "Sukhna Lake walk",
+            "Rock Garden tour",
+            "Breakfast at Indian Coffee House",
+            "Rose Garden stroll",
+            "Open Hand Monument visit"
+        ],
+        afternoon: [
+            "Elante Mall shopping",
+            "Chhatbir Zoo visit",
+            "Sector 17 Plaza walk",
+            "Lunch at Virgin Courtyard",
+            "Punjab University campus tour"
+        ],
+        evening: [
+            "Boating at Sukhna Lake",
+            "Dinner at Sector 26",
+            "Night view of Capitol Complex",
+            "Musical Fountain show in Sector 17",
+            "Drive through Geri Route"
+        ]
+            },
+            "agra": {
+    morning: [
+      "Taj Mahal sunrise visit",
+      "Agra Fort tour",
+      "Mehtab Bagh photography",
+      "Breakfast at Joney’s Place",
+      "Itmad-ud-Daulah Tomb visit"
+    ],
+    afternoon: [
+      "Fatehpur Sikri excursion",
+      "Shopping at Kinari Bazaar",
+      "Akbar’s Tomb visit",
+      "Lunch at Pinch of Spice",
+      "Mughal Heritage Walk"
+    ],
+    evening: [
+      "Taj Mahal view from Mehtab Bagh",
+      "Dinner at Esphahan",
+      "Kalakriti Cultural Show",
+      "Yamuna riverfront walk",
+      "Sound and Light Show at Agra Fort"
+    ]
+  },
+  "jaipur": {
+    morning: [
+      "Amber Fort tour",
+      "Hawa Mahal visit",
+      "City Palace exploration",
+      "Breakfast at LMB",
+      "Jantar Mantar visit"
+    ],
+    afternoon: [
+      "Shopping at Johari Bazaar",
+      "Albert Hall Museum tour",
+      "Lunch at Chokhi Dhani",
+      "Nahargarh Fort visit",
+      "Elephant ride at Amer"
+    ],
+    evening: [
+      "Dinner at 1135 AD",
+      "Light and Sound Show at Amber Fort",
+      "Chokhi Dhani cultural evening",
+      "Night view from Nahargarh Fort",
+      "Stroll at Jal Mahal"
+    ]
+  },
+  "mumbai": {
+    morning: [
+      "Gateway of India visit",
+      "Elephanta Caves tour",
+      "Marine Drive walk",
+      "Breakfast at Leopold Café",
+      "Chhatrapati Shivaji Terminus visit"
+    ],
+    afternoon: [
+      "Prince of Wales Museum tour",
+      "Shopping at Colaba Causeway",
+      "Lunch at Britannia & Co.",
+      "Haji Ali Dargah visit",
+      "Sanjay Gandhi National Park safari"
+    ],
+    evening: [
+      "Sunset at Juhu Beach",
+      "Dinner at Trishna",
+      "Marine Drive night stroll",
+      "Bandra-Worli Sea Link drive",
+      "Live performance at NCPA"
+    ]
+  },
+  "goa": {
+    morning: [
+      "Beach yoga session",
+      "Old Goa churches tour",
+      "Dudhsagar Waterfalls visit",
+      "Breakfast at Infantaria",
+      "Spice plantation tour"
+    ],
+    afternoon: [
+      "Anjuna Flea Market shopping",
+      "Fort Aguada exploration",
+      "Lunch at Fisherman’s Wharf",
+      "Chapora Fort visit",
+      "Water sports at Baga Beach"
+    ],
+    evening: [
+      "Sunset at Vagator Beach",
+      "Dinner at Thalassa",
+      "Beach shack party at Anjuna",
+      "Night cruise on Mandovi River",
+      "Live music at Café Mambo"
+    ]
+  },
+  "varanasi": {
+    morning: [
+      "Sunrise boat ride on Ganges",
+      "Kashi Vishwanath Temple visit",
+      "Assi Ghat morning rituals",
+      "Breakfast at Kashi Chat Bhandar",
+      "Banaras Hindu University tour"
+    ],
+    afternoon: [
+      "Sarnath excursion",
+      "Ramnagar Fort visit",
+      "Lunch at Baati Chokha",
+      "Shopping at Vishwanath Gali",
+      "Bharat Kala Bhavan Museum tour"
+    ],
+    evening: [
+      "Ganga Aarti at Dashashwamedh Ghat",
+      "Dinner at Pizzeria Vaatika Café",
+      "Evening walk along ghats",
+      "Classical music concert",
+      "Boat ride under the stars"
+    ]
+  },
+  "kerala": {
+    morning: [
+      "Backwater houseboat cruise",
+      "Kumarakom Bird Sanctuary visit",
+      "Tea plantation tour in Munnar",
+      "Breakfast at local toddy shop",
+      "Athirappilly Waterfalls visit"
+    ],
+    afternoon: [
+      "Ayurvedic massage session",
+      "Lunch at Dal Roti, Fort Kochi",
+      "Kathakali dance performance",
+      "Periyar Wildlife Sanctuary safari",
+      "Spice market tour in Thekkady"
+    ],
+    evening: [
+      "Sunset at Kovalam Beach",
+      "Dinner at Malabar Junction",
+      "Cultural show at Greenix Village",
+      "Evening walk in Fort Kochi",
+      "Boat ride in Alleppey canals"
+    ]
+  },
+  "udaipur": {
+    morning: [
+      "City Palace tour",
+      "Jagdish Temple visit",
+      "Boat ride on Lake Pichola",
+      "Breakfast at Café Edelweiss",
+      "Saheliyon Ki Bari stroll"
+    ],
+    afternoon: [
+      "Lunch at Ambrai Restaurant",
+      "Bagore Ki Haveli Museum visit",
+      "Shopping at Hathi Pol Bazaar",
+      "Monsoon Palace excursion",
+      "Shilpgram crafts village tour"
+    ],
+    evening: [
+      "Sunset at Sajjangarh Palace",
+      "Dinner at Upre by 1559 AD",
+      "Cultural dance show at Bagore Ki Haveli",
+      "Evening walk along Fateh Sagar Lake",
+      "Light and Sound Show at City Palace"
+    ]
+  },
+  "amritsar": {
+    morning: [
+      "Golden Temple visit",
+      "Jallianwala Bagh memorial tour",
+      "Breakfast at Kesar Da Dhaba",
+      "Partition Museum visit",
+      "Durgiana Temple exploration"
+    ],
+    afternoon: [
+      "Lunch at Bharawan Da Dhaba",
+      "Gobindgarh Fort tour",
+      "Shopping at Hall Bazaar",
+      "Maharaja Ranjit Singh Museum visit",
+      "Wagah Border ceremony preparation"
+    ],
+    evening: [
+      "Wagah Border flag ceremony",
+      "Dinner at Crystal Restaurant",
+      "Evening walk around Golden Temple",
+      "Light and Sound Show at Gobindgarh Fort",
+      "Street food tasting at Lawrence Road"
+    ]
+  },
+  "leh ladakh": {
+    morning: [
+      "Shanti Stupa sunrise visit",
+      "Leh Palace tour",
+      "Breakfast at Gesmo Restaurant",
+      "Thiksey Monastery exploration",
+      "Hall of Fame Museum visit"
+    ],
+    afternoon: [
+      "Lunch at The Tibetan Kitchen",
+      "Magnetic Hill experience",
+      "Gurudwara Pathar Sahib visit",
+      "Confluence of Zanskar and Indus rivers",
+      "Shopping at Leh Market"
+    ],
+    evening: [
+      "Dinner at Bon Appetit",
+      "Stargazing at Nubra Valley",
+      "Cultural show at Ladakh Arts and Media Organisation",
+      "Evening walk in Leh town",
+      "Campfire at Pangong Lake"
+    ]
+  },
+  "mysore": {
+    morning: [
+      "Mysore Palace tour",
+      "Chamundi Hill temple visit",
+      "Breakfast at Mylari Dosa",
+      "St. Philomena’s Church exploration",
+      "Railway Museum visit"
+    ],
+    afternoon: [
+      "Lunch at RRR Restaurant",
+      "Brindavan Gardens visit",
+      "Mysore Zoo tour",
+      "Shopping at Devaraja Market",
+      "Jaganmohan Palace and Art Gallery visit"
+    ],
+    evening: [
+      "Light and Sound Show at Mysore Palace",
+      "Dinner at La Uppu",
+      "Evening walk at Kukkarahalli Lake",
+      "Cultural performance at Rangayana",
+      "Relax at Karanji Lake"
+    ]
+  },
+  "rishikesh": {
+    morning: [
+      "Yoga session by the Ganges",
+      "Visit to Triveni Ghat",
+      "Breakfast at The Sitting Elephant",
+      "Neelkanth Mahadev Temple trek",
+      "Beatles Ashram exploration"
+    ],
+    afternoon: [
+      "Lunch at Little Buddha Café",
+      "White-water rafting adventure",
+      "Ram Jhula and Laxman Jhula visit",
+      "Shopping at local markets",
+      "Parmarth Niketan Ashram tour"
+    ],
+    evening: [
+      "Ganga Aarti at Parmarth Niketan",
+      "Dinner at Chotiwala Restaurant",
+      "Live music at Café De Goa",
+      "Evening walk along the Ganges",
+      "Meditation session at ashram"
+    ]
+  },
+  "darjeeling": {
+    morning: [
+      "Tiger Hill sunrise view",
+      "Batasia Loop visit",
+      "Breakfast at Keventer’s",
+      "Darjeeling Himalayan Railway ride",
+      "Peace Pagoda tour"
+    ],
+    afternoon: [
+      "Lunch at Glenary’s",
+      "Padmaja Naidu Himalayan Zoological Park visit",
+      "Himalayan Mountaineering Institute tour",
+      "Tea estate exploration",
+      "Shopping at Chowrasta Market"
+    ],
+    evening: [
+      "Dinner at The Park Restaurant",
+      "Evening walk at Mall Road",
+      "Live music at Joey’s Pub",
+      "Sunset at Observatory Hill",
+      "Relax at Glenburn Tea Estate"
+    ]
+  },
+            "delhi": {
+    morning: [
+        "India Gate visit",
+        "Red Fort tour",
+        "Lotus Temple meditation",
+        "Humayun’s Tomb walk",
+        "Breakfast at Saravana Bhavan"
+    ],
+    afternoon: [
+        "Qutub Minar visit",
+        "Shopping at Connaught Place",
+        "Akshardham Temple tour",
+        "Lunch at Karim’s Jama Masjid",
+        "Lodhi Garden relaxation"
+    ],
+    evening: [
+        "Light and Sound Show at Red Fort",
+        "Dinner at Hauz Khas Village",
+        "Night view at India Gate",
+        "Stroll at Dilli Haat",
+        "Drive through Rajpath"
+    ]
+}
+
+        };
+
+        // Get DOM elements
+        const destinationInput = document.getElementById('destination');
+        const daysInput = document.getElementById('days');
+        const generateBtn = document.getElementById('generateBtn');
+        const suggestionsDiv = document.getElementById('suggestions');
+        const suggestionsList = document.getElementById('suggestionsList');
+        const autoFillBtn = document.getElementById('autoFillBtn');
+        const itineraryTable = document.getElementById('itineraryTable');
+        const itineraryBody = document.getElementById('itineraryBody');
+
+        // Show suggestions when typing a destination
+        destinationInput.addEventListener('input', function() {
+            const location = this.value.toLowerCase();
+            let found = false;
+            
+            suggestionsList.innerHTML = '';
+            
+            for (const city in attractions) {
+                if (location.includes(city)) {
+                    // Show suggestions from all time slots
+                    const allActivities = [
+                        ...attractions[city].morning,
+                        ...attractions[city].afternoon,
+                        ...attractions[city].evening
+                    ];
+                    
+                    allActivities.forEach(attraction => {
+                        const tag = document.createElement('span');
+                        tag.className = 'suggestion-tag';
+                        tag.textContent = attraction;
+                        tag.onclick = () => addToItinerary(attraction);
+                        suggestionsList.appendChild(tag);
+                    });
+                    found = true;
+                    break;
+                }
+            }
+            
+            suggestionsDiv.style.display = found ? 'block' : 'none';
+        });
+
+        // Generate empty itinerary table
+        generateBtn.addEventListener('click', function() {
+            const days = parseInt(daysInput.value);
+            if (!days || !destinationInput.value) {
+                alert('Please enter both destination and days');
+                return;
+            }
+            
+            itineraryBody.innerHTML = '';
+            for (let i = 1; i <= days; i++) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>Day ${i}</td>
+                    <td>
+                        <div class="time-header">Morning</div>
+                        <input class="activity-input" placeholder="Activity">
+                    </td>
+                    <td>
+                        <div class="time-header">Afternoon</div>
+                        <input class="activity-input" placeholder="Activity">
+                    </td>
+                    <td>
+                        <div class="time-header">Evening</div>
+                        <input class="activity-input" placeholder="Activity">
+                    </td>
+                `;
+                itineraryBody.appendChild(row);
+            }
+            
+            itineraryTable.style.display = 'table';
+        });
+
+        // Auto-fill button - creates smart itinerary
+        autoFillBtn.addEventListener('click', function() {
+            const location = destinationInput.value.toLowerCase();
+            const days = parseInt(daysInput.value);
+            
+            if (!days || !location) {
+                alert('Please enter both destination and days first');
+                return;
+            }
+            
+            for (const city in attractions) {
+                if (location.includes(city)) {
+                    createSmartItinerary(city, days);
+                    break;
+                }
+            }
+        });
+
+        // Helper functions
+        function addToItinerary(attraction) {
+            const inputs = document.querySelectorAll('.activity-input');
+            for (let i = 0; i < inputs.length; i++) {
+                if (!inputs[i].value) {
+                    inputs[i].value = attraction;
+                    break;
+                }
+            }
+        }
+
+        function createSmartItinerary(city, days) {
+            itineraryBody.innerHTML = '';
+            
+            const morningActivities = [...attractions[city].morning];
+            const afternoonActivities = [...attractions[city].afternoon];
+            const eveningActivities = [...attractions[city].evening];
+            
+            // Shuffle arrays to create variety
+            shuffleArray(morningActivities);
+            shuffleArray(afternoonActivities);
+            shuffleArray(eveningActivities);
+            
+            for (let day = 1; day <= days; day++) {
+                const row = document.createElement('tr');
+                
+                // Get activities for each time slot, cycling through if needed
+                const morning = morningActivities[(day-1) % morningActivities.length];
+                const afternoon = afternoonActivities[(day-1) % afternoonActivities.length];
+                const evening = eveningActivities[(day-1) % eveningActivities.length];
+                
+                row.innerHTML = `
+                    <td>Day ${day}</td>
+                    <td>
+                        <div class="time-header">Morning</div>
+                        <input class="activity-input" value="${morning}">
+                    </td>
+                    <td>
+                        <div class="time-header">Afternoon</div>
+                        <input class="activity-input" value="${afternoon}">
+                    </td>
+                    <td>
+                        <div class="time-header">Evening</div>
+                        <input class="activity-input" value="${evening}">
+                    </td>
+                `;
+                itineraryBody.appendChild(row);
+            }
+            
+            itineraryTable.style.display = 'table';
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+    </script>
+</body>
+</html>

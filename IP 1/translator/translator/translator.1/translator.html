@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎙️ AI Voice Translator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f0ff, #e0f2ff, #e6fbfa);
+            padding: 20px;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            padding: 2px;
+            background: linear-gradient(45deg, #a78bfa, #818cf8, #60a5fa);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #7c3aed;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 120px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid #d8b4fe;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: #9333ea;
+            box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .button {
+            cursor: pointer;
+            padding: 10px 16px;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button-primary {
+            background: linear-gradient(to right, #8b5cf6, #6366f1);
+        }
+
+        .button-secondary {
+            background: linear-gradient(to right, #6366f1, #3b82f6);
+        }
+
+        .button-success {
+            background: linear-gradient(to right, #10b981, #6366f1);
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .button-accent {
+            background: linear-gradient(to right, #8b5cf6, #10b981);
+            width: 100%;
+        }
+
+        .language-display {
+            text-align: center;
+            color: #7c3aed;
+            font-size: 14px;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .translated-box {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid #d8b4fe;
+            border-radius: 12px;
+            padding: 16px;
+            min-height: 60px;
+            margin-bottom: 16px;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .button {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ AI Voice Translator</h1>
+        
+        <textarea id="textInput" class="textarea" placeholder="🎤 Speak or type text..."></textarea>
+        
+        <div class="button-group">
+            <button id="speakInputBtn" class="button button-primary" onclick="recognizeSpeech()">
+                🎤 Speak Input
+            </button>
+            
+            <button id="speakTargetBtn" class="button button-secondary" onclick="recognizeTargetLanguage()">
+                🎤 Target Language
+            </button>
+        </div>
+        
+        <p id="detectedLanguage" class="language-display">
+            Selected Language: None
+        </p>
+        
+        <button id="translateBtn" class="button button-success" onclick="translateText()">
+            🔄 Translate
+        </button>
+        
+        <div id="translatedText" class="translated-box">
+            Translation will appear here...
+        </div>
+        
+        <button id="speakOutputBtn" class="button button-accent" onclick="speakTranslation()">
+            🔊 Speak Output
+        </button>
+    </div>
+
+    <script>
+        // Global variables
+        let translatedText = "";
+        let targetLanguage = "en";
+
+        // Language mapping
+        const languageCodes = {
+            "english": "en",
+            "hindi": "hi",
+            "marathi": "mr",
+            "bengali": "bn",
+            "bhojpuri": "bh",
+            "french": "fr",
+            "spanish": "es",
+            "german": "de",
+            "chinese": "zh-CN",
+            "arabic": "ar",
+            "russian": "ru",
+            "japanese": "ja",
+            "korean": "ko"
+        };
+
+        // Helper functions
+        function addPulseEffect(elementId) {
+            document.getElementById(elementId).classList.add('pulse');
+        }
+
+        function removePulseEffect(elementId) {
+            document.getElementById(elementId).classList.remove('pulse');
+        }
+
+        function updateButtonText(elementId, text) {
+            document.getElementById(elementId).textContent = text;
+        }
+
+        // Speech recognition for input
+        function recognizeSpeech() {
+            if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+                alert("Speech recognition is not supported in your browser");
+                return;
+            }
+
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            // Visual feedback
+            addPulseEffect('speakInputBtn');
+            updateButtonText('speakInputBtn', '🎤 Listening...');
+            
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById("textInput").value = transcript;
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error:", event.error);
+                alert(`Speech recognition error: ${event.error}. Please try again.`);
+            };
+
+            recognition.onend = function() {
+                removePulseEffect('speakInputBtn');
+                updateButtonText('speakInputBtn', '🎤 Speak Input');
+            };
+        }
+
+        // Speech recognition for target language
+        function recognizeTargetLanguage() {
+            if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+                alert("Speech recognition is not supported in your browser");
+                return;
+            }
+
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = "en-US";
+            
+            // Visual feedback
+            addPulseEffect('speakTargetBtn');
+            updateButtonText('speakTargetBtn', '🎤 Listening...');
+            
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const spokenLanguage = event.results[0][0].transcript.toLowerCase();
+                
+                // Find the language in our mapping
+                let languageFound = false;
+                for (const language in languageCodes) {
+                    if (spokenLanguage.includes(language)) {
+                        targetLanguage = languageCodes[language];
+                        document.getElementById("detectedLanguage").innerText = 
+                            "Selected Language: " + language.charAt(0).toUpperCase() + language.slice(1);
+                        languageFound = true;
+                        break;
+                    }
+                }
+                
+                if (!languageFound) {
+                    alert("Language not recognized. Try saying English, Hindi, Marathi, etc.");
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error:", event.error);
+                alert(`Speech recognition error: ${event.error}. Please try again.`);
+            };
+
+            recognition.onend = function() {
+                removePulseEffect('speakTargetBtn');
+                updateButtonText('speakTargetBtn', '🎤 Target Language');
+            };
+        }
+
+        // Translate text
+        function translateText() {
+            const inputText = document.getElementById("textInput").value.trim();
+            
+            if (!inputText) {
+                alert("Please enter or speak some text to translate");
+                return;
+            }
+
+            // Visual feedback
+            addPulseEffect('translateBtn');
+            updateButtonText('translateBtn', '🔄 Translating...');
+            
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLanguage}&dt=t&q=${encodeURIComponent(inputText)}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    translatedText = data[0][0][0];
+                    document.getElementById("translatedText").innerText = translatedText;
+                })
+                .catch(error => {
+                    console.error("Translation Error:", error);
+                    document.getElementById("translatedText").innerText = "Translation failed. Please try again.";
+                })
+                .finally(() => {
+                    removePulseEffect('translateBtn');
+                    updateButtonText('translateBtn', '🔄 Translate');
+                });
+        }
+
+        // Speak translated text
+        function speakTranslation() {
+            if (!translatedText) {
+                alert("Please translate some text first");
+                return;
+            }
+
+            // Visual feedback
+            addPulseEffect('speakOutputBtn');
+            updateButtonText('speakOutputBtn', '🔊 Speaking...');
+            
+            const speech = new SpeechSynthesisUtterance(translatedText);
+            speech.lang = targetLanguage;
+            
+            speech.onend = function() {
+                removePulseEffect('speakOutputBtn');
+                updateButtonText('speakOutputBtn', '🔊 Speak Output');
+            };
+            
+            speech.onerror = function() {
+                removePulseEffect('speakOutputBtn');
+                updateButtonText('speakOutputBtn', '🔊 Speak Output');
+                alert("Unable to speak the translation. Please try again.");
+            };
+            
+            window.speechSynthesis.speak(speech);
+        }
+    </script>
+</body>
+</html>

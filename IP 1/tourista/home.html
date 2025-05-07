@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourista</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            color: black;
+            background-color: #fff0dc;
+            background: url(Untitled\ design.png) no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0px 10px;
+        }
+
+        .navbar li {
+            list-style: none;
+            display: inline-block;
+            padding: 0px 30px;
+        }
+
+        .navbar li a:hover {
+            color: #b67e2a;
+        }
+
+        li, a, button {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 17px;
+            color: black;
+        }
+
+        .signup-btn {
+            border: 2px solid black;
+            padding: 5px 10px 5px 10px;
+        }
+
+        .lf-container {
+            float: left;
+            width: 50%;
+        }
+
+        .lf-content {
+            margin-left: 130px;
+            margin-top: 90px;
+        }
+
+        .lf-content h4 {
+            color: brown;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .lf-content h1 {
+            font-size: 50px;
+            font-weight: 900;
+            color: black;
+            margin-top: 0;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .lf-content p {
+            font-weight: 500;
+            margin-top: 1;
+            margin-bottom: 20px;
+        }
+
+        .contact-btn {
+            padding: 10px 20px 10px 20px;
+            border-radius: 5px;
+            color: white;
+            background-color: chocolate;
+        }
+
+        .booking-btn {
+            padding: 10px 20px 10px 20px;
+            border-radius: 5px;
+            color: white;
+            background-color: chocolate;
+        }
+
+        /* ================== UPDATED SERVICES SECTION ================== */
+        .Services-title {
+            text-align: center;
+            margin: 60px 0 40px;
+        }
+
+        .Services-title h5 {
+            color: brown;
+            font-size: 18px;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .Services-title h3 {
+            font-size: 32px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .Services-title h3::after {
+            content: "";
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: chocolate;
+            margin: 15px auto 0;
+        }
+
+        .services-container {
+            display: flex;
+            justify-content: center;
+            padding: 0 20px;
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 240px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .card img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        .card h4 {
+            font-size: 18px;
+            margin: 0 0 12px 0;
+            color: #333;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+            
+            .card {
+                height: auto;
+                padding: 25px 20px;
+            }
+        }
+
+        /* ================== UPDATED PROFILE STYLES ================== */
+    .profile-container {
+        position: relative;
+        margin-left: 15px;
+    }
+
+    .profile-display {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 20px;
+        transition: all 0.3s;
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-display:hover {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .profile-img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 8px;
+        border: 2px solid white;
+    }
+
+    .username-display {
+        margin-right: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .dropdown-arrow {
+        font-size: 12px;
+        transition: transform 0.3s;
+        color: #333;
+    }
+
+    .profile-display:hover .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+
+    .profile-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        width: 180px;
+        overflow: hidden;
+        display: none;
+        z-index: 1000;
+        margin-top: 5px;
+    }
+
+    .profile-dropdown.show {
+        display: block;
+    }
+
+    .profile-dropdown a {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+
+    .profile-dropdown a:hover {
+        background-color: #f8f8f8;
+        color: #b67e2a;
+    }
+
+    .profile-dropdown a i {
+        margin-right: 10px;
+        width: 16px;
+        text-align: center;
+    }
+
+    .logout-btn {
+        border-top: 1px solid #eee;
+        color: #e74c3c !important;
+    }
+
+    .logout-btn:hover {
+        background-color: #ffeeee !important;
+    }
+    body { font-family: Verdana, sans-serif; background-color: #fff0dc; margin: 0; padding: 0; }
+        header { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        .profile { display: flex; align-items: center; position: relative; }
+        .profile img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; cursor: pointer; }
+        .profile button { padding: 8px 16px; border: none; background-color: chocolate; color: white; border-radius: 5px; cursor: pointer; }
+        .profile button:hover { background-color: #b0672b; }
+
+        .profile-info { 
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            width: 200px;
+        }
+
+        .profile-info.show { display: block; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <img src="Tourista__2___1_-removebg-preview.png" alt="Tourista Logo" width="150px">
+        <div class="profile">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile Picture" id="profile-img">
+            <div class="profile-info" id="profile-info">
+                <p><strong>Name:</strong> <span id="profile-name">User</span></p>
+                <p><strong>Email:</strong> <span id="profile-email">user@example.com</span></p>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="lf-container">
+            <div class="lf-content">
+                <h4>Best Destination in India</h4>
+                <h1>Travel, enjoy and live a new and full life.</h1>
+                <p>Our Most Used Services.</p>
+                <a href="http://127.0.0.1:5500/scheduler/sc.html">
+                    <button class="contact-btn">Scheduler</button>
+                </a>
+                <a href="http://127.0.0.1:5500/login%20page/budget.html">
+                    <button class="booking-btn">Budget</button>
+                </a>
+            </div>
+        </div>
+        <div class="rt-container">
+            <img src="Untitled_design-removebg-preview.png" alt="Travel Illustration" width="580px">
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="title-style">
+        <div class="Services-title">
+            <h5>OUR SERVICES</h5>
+            <h3>We offer Best Services</h3>
+        </div>
+        <div class="services-container">
+            <div class="services-grid">
+                <a href="http://127.0.0.1:5500/translator/translator/translator.1/translator.html">
+                    <div class="card">
+                        <img src="Tourista (2).png" alt="Translator icon">
+                        <h4>Translator</h4>
+                        <p>Speak and translate any language instantly.</p>
+                    </div>
+                </a>
+                <a href="http://127.0.0.1:5500/weather/weather_api.html">
+                    <div class="card">
+                        <img src="Tourista (2).png" alt="Weather icon">
+                        <h4>Weather</h4>
+                        <p>Accurate weather forecasts for your destination.</p>
+                    </div>
+                </a>
+                <a href="http://127.0.0.1:5500/login%20page/budget.html">
+                    <div class="card">
+                        <img src="Tourista (2).png" alt="Budget icon">
+                        <h4>Budget Tracker</h4>
+                        <p>Track your travel expenses and stay on budget.</p>
+                    </div>
+                </a>
+                <a href="http://127.0.0.1:5500/tourista/emergency.html">
+                    <div class="card">
+                        <img src="Tourista (2).png" alt="Emergency icon">
+                        <h4>Emergency Support</h4>
+                        <p>Immediate help with local emergency contacts.</p>
+                    </div>
+                </a>
+                <a href="http://127.0.0.1:5500/scheduler/sc.html">
+                    <div class="card">
+                        <img src="Tourista (2).png" alt="Scheduler icon">
+                        <h4>Scheduler</h4>
+                        <p>Plan your perfect itinerary with ease.</p>
+                    </div>
+                </a>
+                <a href="http://127.0.0.1:5500/chatbot.1/chatbot.html">
+                    <div class="card">
+                        <img src="Tourista (2).png" alt="Chatbot icon">
+                        <h4>Chatbot</h4>
+                        <p>24/7 AI assistant for all your travel queries.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const profileImg = document.getElementById('profile-img');
+        const profileInfo = document.getElementById('profile-info');
+
+        profileImg.addEventListener('click', function() {
+            profileInfo.classList.toggle('show');
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            sessionStorage.removeItem('touristaLoggedIn');
+            localStorage.removeItem('touristaUser');
+            window.location.href = '/login%20page/new.html';
+        });
+
+        // Debugging - Load user data from localStorage (with fix)
+        window.addEventListener('load', function() {
+            const userData = JSON.parse(localStorage.getItem('touristaUser'));
+            if (userData) {
+                document.getElementById('profile-name').textContent = userData.name || 'User';
+                document.getElementById('profile-email').textContent = userData.email || 'user@example.com';
+                if (userData.profileImage) {
+                    document.getElementById('profile-img').src = userData.profileImage;
+                }
+            } else {
+                console.error('No user data found in localStorage. Make sure you are saving it correctly during login.');
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the login and signup links by their IDs
+            const loginLink = document.getElementById('login-link');
+            const signupLink = document.getElementById('signup-link');
+    
+            // The path to your login page
+            const loginPagePath = '/login%20page/new.html';
+            
+            // Check if user is logged in
+            checkLoggedInStatus();
+            
+            // Add click event listener to login link
+            if (loginLink) {
+                loginLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = loginPagePath;
+                });
+            }
+            
+            // Add click event listener to signup link
+            if (signupLink) {
+                signupLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = loginPagePath + '?action=signup';
+                });
+            }
+            
+            // Function to check if user is logged in
+            function checkLoggedInStatus() {
+                const isLoggedIn = sessionStorage.getItem('touristaLoggedIn');
+                const userData = JSON.parse(localStorage.getItem('touristaUser'));
+                
+                if (isLoggedIn === 'true' && userData) {
+                    // User is logged in, show profile interface
+                    handleLoggedInUser(userData);
+                }
+            }
+            
+            // Function to handle logged in user UI changes
+            function handleLoggedInUser(userData) {
+                // Hide login/signup buttons
+                const loginItem = document.querySelector('.navbar li:first-child');
+                const signupItem = document.querySelector('.navbar li:last-child');
+                
+                if (loginItem) loginItem.style.display = 'none';
+                if (signupItem) signupItem.style.display = 'none';
+                
+                // Create profile container
+                const navbar = document.querySelector('.navbar ul');
+                if (navbar) {
+                    const profileContainer = document.createElement('li');
+                    profileContainer.className = 'profile-container';
+                    
+                    // Create profile display
+                    const profileDisplay = document.createElement('div');
+                    profileDisplay.className = 'profile-display';
+                    
+                    // Add profile image
+                    const profileImg = document.createElement('img');
+                    profileImg.className = 'profile-img';
+                    profileImg.src = userData.profileImage || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                    profileImg.alt = 'Profile';
+                    profileImg.onerror = function() {
+                        this.src = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                    };
+                    
+                    // Add username display
+                    const usernameDisplay = document.createElement('span');
+                    usernameDisplay.className = 'username-display';
+                    usernameDisplay.textContent = userData.name || 'User';
+                    
+                    // Add dropdown arrow
+                    const dropdownArrow = document.createElement('span');
+                    dropdownArrow.className = 'dropdown-arrow';
+                    dropdownArrow.innerHTML = '▼';
+                    
+                    // Create dropdown menu
+                    const dropdownMenu = document.createElement('div');
+                    dropdownMenu.className = 'profile-dropdown';
+                    
+                    // Add profile link
+                    const profileLink = document.createElement('a');
+                    profileLink.href = '#';
+                    profileLink.innerHTML = '<i>👤</i> My Profile';
+                    
+                    // Add settings link
+                    const settingsLink = document.createElement('a');
+                    settingsLink.href = '#';
+                    settingsLink.innerHTML = '<i>⚙️</i> Settings';
+                    
+                    // Add trips link
+                    const tripsLink = document.createElement('a');
+                    tripsLink.href = '#';
+                    tripsLink.innerHTML = '<i>✈️</i> My Trips';
+                    
+                    // Add logout button
+                    const logoutButton = document.createElement('a');
+                    logoutButton.href = '#';
+                    logoutButton.className = 'logout-btn';
+                    logoutButton.innerHTML = '<i>🚪</i> Logout';
+                    logoutButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        logoutUser();
+                    });
+                    
+                    // Assemble components
+                    profileDisplay.appendChild(profileImg);
+                    profileDisplay.appendChild(usernameDisplay);
+                    profileDisplay.appendChild(dropdownArrow);
+                    
+                    dropdownMenu.appendChild(profileLink);
+                    dropdownMenu.appendChild(settingsLink);
+                    dropdownMenu.appendChild(tripsLink);
+                    dropdownMenu.appendChild(logoutButton);
+                    
+                    profileContainer.appendChild(profileDisplay);
+                    profileContainer.appendChild(dropdownMenu);
+                    
+                    navbar.appendChild(profileContainer);
+                    
+                    // Add toggle functionality for dropdown
+                    profileDisplay.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        dropdownMenu.classList.toggle('show');
+                    });
+                    
+                    // Close dropdown when clicking elsewhere
+                    document.addEventListener('click', function(e) {
+                        if (!profileContainer.contains(e.target)) {
+                            dropdownMenu.classList.remove('show');
+                        }
+                    });
+                }
+            }
+            
+            // Function to log out user
+            function logoutUser() {
+                // Remove login state from sessionStorage
+                sessionStorage.removeItem('touristaLoggedIn');
+                
+                // Reload page to reset UI
+                window.location.reload();
+            }
+        });
+    </script>
+</body>
+</html>
