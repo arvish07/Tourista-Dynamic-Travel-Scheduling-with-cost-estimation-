@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: auto;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to top, #00aaff, #003366);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input {
+            padding: 12px;
+            width: 80%;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .weather-card {
+            background: #f9f9f9;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .weather-card img {
+            max-width: 50px;
+        }
+
+        #forecast {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .forecast-item {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .forecast-item img {
+            width: 40px;
+        }
+
+        .loading {
+            font-size: 18px;
+            color: #555;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .clouds {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            perspective: 1000px;
+        }
+
+        .cloud {
+            position: absolute;
+            width: 500px;
+            height: 250px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            animation: moveClouds 40s linear infinite;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes moveClouds {
+            0% { transform: translateX(-500px); }
+            100% { transform: translateX(100vw); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="clouds">
+        <div class="cloud" style="top: 15%; left: 20%;"></div>
+        <div class="cloud" style="top: 30%; left: 50%;"></div>
+        <div class="cloud" style="top: 45%; left: 80%;"></div>
+    </div>
+
+    <div class="container" id="weatherContainer">
+        <h2>🌍 Weather App</h2>
+        <input type="text" id="country" placeholder="Enter Country (e.g., India)" oninput="validateInput()">
+        <input type="text" id="state" placeholder="Enter State (e.g., Maharashtra)" oninput="validateInput()">
+        <input type="text" id="location" placeholder="Enter City/District (e.g., Mumbai)" oninput="validateInput()">
+        <button id="getWeatherBtn" onclick="getWeather()">Get Weather</button>
+        <p class="loading">Loading...</p>
+        <div id="result"></div>
+        <div id="forecast"></div>
+        <button id="searchAgainBtn" style="display: none;" onclick="resetSearch()">Change City</button>
+    </div>
+
+    <script>
+        function getWeather() {
+            let location = document.getElementById("location").value;
+            let country = document.getElementById("country").value;
+            let state = document.getElementById("state").value;
+
+            if (!location || !country || !state) {
+                alert("Please enter valid location details (Country, State, City)");
+                return;
+            }
+
+            document.getElementById("getWeatherBtn").style.display = 'none';
+            document.querySelector('.loading').style.display = 'block';
+
+            let forecastApiUrl = `http://api.weatherapi.com/v1/forecast.json?key=(your api key)=${location}&days=6`;
+
+            fetch(forecastApiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    let current = data.current;
+
+                    document.getElementById("result").innerHTML = `
+                        <div class="weather-card">
+                            <h3>Today's ${data.location.name} Weather</h3>
+                            <img src="http:${current.condition.icon}" alt="Weather Icon">
+                            <p>${current.condition.text} - ${current.temp_c}°C</p>
+                            <p>${generateWeatherSummary(current.condition.text, current.temp_c)}</p>
+                        </div>`;
+
+                    let forecastHtml = "";
+                    data.forecast.forecastday.forEach(day => {
+                        let emoji = getWeatherEmoji(day.day.condition.text);
+                        let date = new Date(day.date);
+                        let dayName = date.toLocaleString('en-us', { weekday: 'long' });
+                        forecastHtml += `
+                            <div class="forecast-item">
+                                <p><strong>${dayName}, ${day.date}</strong></p>
+                                <img src="http:${day.day.condition.icon}" width="40">
+                                <p>${day.day.avgtemp_c}°C ${emoji}</p>
+                            </div>`;
+                    });
+                    document.getElementById("forecast").innerHTML = forecastHtml;
+
+                    document.querySelector('.loading').style.display = 'none';
+                    document.getElementById("searchAgainBtn").style.display = 'inline-block';
+                })
+                .catch(() => {
+                    document.getElementById("result").innerHTML = "Error fetching data";
+                    document.querySelector('.loading').style.display = 'none';
+                });
+        }
+
+        function generateWeatherSummary(condition, temp) {
+            if (condition.includes("rain")) return "It's rainy, make sure to carry an umbrella!";
+            if (condition.includes("cloud")) return "It's cloudy today, expect cool temperatures.";
+            if (condition.includes("sunny")) return `The weather is sunny and warm, enjoy the outdoors!`;
+            return `The weather is ${condition}, with a temperature of ${temp}°C.`;
+        }
+
+        function getWeatherEmoji(condition) {
+            if (condition.includes("rain")) return "🌧️";
+            if (condition.includes("cloud")) return "☁️";
+            if (condition.includes("sunny")) return "☀️";
+            return "🌡️";
+        }
+
+        function resetSearch() {
+            document.getElementById("location").value = '';
+            document.getElementById("searchAgainBtn").style.display = 'none';
+            document.getElementById("getWeatherBtn").style.display = 'inline-block';
+            document.getElementById("result").innerHTML = '';
+            document.getElementById("forecast").innerHTML = '';
+            document.getElementById("location").focus();
+        }
+
+        function validateInput() {
+        }
+    </script>
+
+</body>
+</html>
